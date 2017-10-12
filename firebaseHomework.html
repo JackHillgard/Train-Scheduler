@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Train Scheduler</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div id="main container" class="container-fluid">
+        <div class="jumbotron">
+            <h1>Train Scheduler</h1>
+            <h2>Get Back on Track!</h2>
+        </div>
+
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Train Name</th>
+                    <th>Destination</th>
+                    <th>Frequency</th>
+                    <th>Next Arrival</th>
+                    <th>Minutes Away</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Super Chief</td>
+                    <td>Los Angeles</td>
+                    <td>3 Hours</td>
+                    <td>Imminent</td>
+                    <td>0 minutes</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+        <div id="search-parameters">
+            <div class="form-group">
+                <label id="term" for="usr">Train Name:</label>
+                <input type="text" class="form-control" id="trainName">
+            </div>
+            <div class="form-group">
+                <label id="term" for="usr">Destination:</label>
+                <input type="text" class="form-control" id="destination">
+            </div>
+            <div class="form-group">
+                <label id="stYear" for="pwd">First Train Time (HH:mm - military time)</label>
+                <input type="" class="form-control" id="firstTrainTime">
+            </div>
+            <div class="form-group">
+                <label id="endYear"for="pwd">Frequency (min):</label>
+                <input type="" class="form-control" id="frequency">
+            </div>
+            <div class="btn-group" role="group" aria-label="...">
+                <button id="search" type="button" class="btn btn-primary btn-lg">Enter</button>
+            </div>
+            <!-- <p><a class="Search btn btn-primary btn-lg" href="#" role="button">Search</a></p>
+                <p><a class="Clear btn btn-primary btn-lg" href="#" role="button">Clear Results</a></p> -->
+            </div>
+
+        </div>
+
+            <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+            <script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyA27Ol3lrnnIjTLTsXL2RrnomF84vslKhE",
+    authDomain: "trainscheduleproject1.firebaseapp.com",
+    databaseURL: "https://trainscheduleproject1.firebaseio.com",
+    projectId: "trainscheduleproject1",
+    storageBucket: "",
+    messagingSenderId: "942886878614"
+  };
+  firebase.initializeApp(config);
+
+    //Create a variable to reference the database
+    var database = firebase.database();
+
+      // Initial Variables (SET the first set IN FIREBASE FIRST)
+      // Note remember to create these same variables in Firebase!
+      var trainName = "";
+      var destination = "";
+      var firstTrainTime = "";
+      var frequency = "";
+
+      //Click button changes what is stored in firebase
+      $("click-button").on("click", function(event) {
+        //Prevent the page from refreshing
+        event.preventDefault();
+
+        //Get inputs
+        trainName = $("#trainName-input").val().trim();
+        destination = $("#destination-input").val().trim();
+        firstTrainTime = $("#firstTrainTime-input").val().trim();
+        frequency = $("#frequency-input").val().trim();
+
+
+        console.log("all: ",trainName, destination, firstTrainTime, frequency);
+
+        var trainList = {
+            trainName : trainName,
+            destination : destination,
+            firstTrainTime : firstTrainTime,
+            frequency : frequency
+        }
+
+        //Change what is saved in the firebase
+        database.ref().push(trainList);
+
+
+        //Firebase is always watching for changes to the data.
+        // When changes occurs it will print them to console and html
+        database.ref().orderByChild("dateAdded").limitToLast(1).on("child_added", function(snapshot) {
+
+            var mysnapshot = "snapshot:";
+            //Print the initioal data to the console.
+            console.log(mysnapshot, snapshot.val());
+
+
+            //Change the HTML
+            $("#displayed-data").html("<h1>" + snapshot.val().trainName + "</h1><br><h2>" + snapshot.val().destination + "</h2><br><h3>" + snapshot.val().firstTrainTime + "</h3><br><h4>" + snapshot.val().frequency + "</h4>");
+            //If any errors are experienced , log them to console.
+        }, function(errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        })
+
+    })
+
+
+</script>
+</body>
+</html>
